@@ -3,10 +3,13 @@ package com.adityakost.controllers;
 import com.adityakost.entity.CalonPenyewa;
 import com.adityakost.entity.Kamar;
 import com.adityakost.entity.Pemesanan;
+import com.adityakost.entity.Penjaga;
 import com.adityakost.repo.CalonPenyewaRepo;
+import com.adityakost.repo.PenjagaRepo;
 import com.adityakost.service.GambarService;
 import com.adityakost.service.KamarService;
 import com.adityakost.service.PemesananService;
+import com.adityakost.service.PenjagaService;
 
 import jakarta.persistence.IdClass;
 import jakarta.servlet.http.HttpSession;
@@ -40,6 +43,9 @@ public class HomeController {
 
     @Autowired
     private PemesananService pemesananService;
+
+    @Autowired
+    private PenjagaService penjagaService;
 
     // Menampilkan halaman utama dengan daftar kamar
     @GetMapping
@@ -81,6 +87,29 @@ public class HomeController {
             return "login";
         }
     }
+    @GetMapping("/login-penjaga")
+    public String loginPenjaga() {
+        return "login-penjaga";
+    }
+
+
+    // Proses login
+    @PostMapping("/login-penjaga")
+    public String loginPenjaga(@RequestParam("email-penjaga") String emailPenjaga,
+                                @RequestParam("password-penjaga") String passwordPenjaga,
+                                HttpSession session, Model model) {
+        
+        Penjaga penjaga = penjagaService.findByEmailPenjagaAndPasswordPenjaga(emailPenjaga, passwordPenjaga);
+    
+        if (penjaga != null) {
+            session.setAttribute("user", penjaga);
+            return "/home"; // Redirect ke halaman home jika login berhasil
+        } else {
+            model.addAttribute("error", "Email atau password salah");
+            return "login-penjaga"; 
+        }
+    }
+    
 
     // Menampilkan halaman register
     @GetMapping("/register")
