@@ -8,6 +8,7 @@ import com.adityakost.service.GambarService;
 import com.adityakost.service.KamarService;
 import com.adityakost.service.PemesananService;
 
+import jakarta.persistence.IdClass;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -172,4 +173,11 @@ public class HomeController {
         session.invalidate();
         return "redirect:/";
     }
+
+    @GetMapping("profile")
+    public String getProfile() {
+        return "profile";
+    }
+    
+    
 }
