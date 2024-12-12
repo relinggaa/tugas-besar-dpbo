@@ -192,6 +192,26 @@ public class HomeController {
     return "pesan";
     }
 
+  
+    
+    @GetMapping("/showKamar")
+    public String showKamar(Model model) {
+        List<Kamar> listKamar = kamarService.getAllKamar();
+        model.addAttribute("listKamar", listKamar);
+
+        // Menyertakan gambar Base64 untuk setiap kamar
+        Map<Long, String> gambarMap = new HashMap<>();
+        for (Kamar kamar : listKamar) {
+            String gambarBase64 = gambarService.getGambarBase64(kamar.getId());
+            if (gambarBase64 != null) {
+                gambarMap.put(kamar.getId(), gambarBase64);
+            }
+        }
+        model.addAttribute("gambarMap", gambarMap);
+
+        return "showKamar";
+    }
+
     // Proses logout
     @GetMapping("/logout")
     public String logout(HttpSession session) {
