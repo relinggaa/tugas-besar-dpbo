@@ -1,6 +1,7 @@
 package com.adityakost.controllers;
 
 import com.adityakost.entity.CalonPenyewa;
+import com.adityakost.entity.Gambar;
 import com.adityakost.entity.Kamar;
 import com.adityakost.entity.Pemesanan;
 import com.adityakost.entity.Penjaga;
@@ -21,9 +22,11 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -102,7 +105,7 @@ public class HomeController {
         Penjaga penjaga = penjagaService.findByEmailPenjagaAndPasswordPenjaga(emailPenjaga, passwordPenjaga);
     
         if (penjaga != null) {
-            session.setAttribute("user", penjaga);
+            session.setAttribute("penjaga", penjaga);
             return "/home"; // Redirect ke halaman home jika login berhasil
         } else {
             model.addAttribute("error", "Email atau password salah");
@@ -119,48 +122,41 @@ public class HomeController {
         return modelAndView;
     }
 
-    // Proses register
-    @PostMapping("/register")
-    public String registerSubmit(@ModelAttribute CalonPenyewa calonPenyewa, RedirectAttributes redirectAttributes) {
-        if (calonPenyewaRepo.existsByUsername(calonPenyewa.getUsername())) {
-            redirectAttributes.addFlashAttribute("error", "Username sudah terdaftar");
-            return "redirect:/register";
-        }
-
-        if (calonPenyewaRepo.existsByEmail(calonPenyewa.getEmail())) {
-            redirectAttributes.addFlashAttribute("error", "Email sudah terdaftar");
-            return "redirect:/register";
-        }
-
-        if (calonPenyewaRepo.existsByPhoneNumber(calonPenyewa.getPhoneNumber())) {
-            redirectAttributes.addFlashAttribute("error", "Nomor HP sudah terdaftar");
-            return "redirect:/register";
-        }
-
-        calonPenyewaRepo.save(calonPenyewa);
-        redirectAttributes.addFlashAttribute("success", true); 
-        return "redirect:/login"; 
+    // Menambahkan kamar
+    @GetMapping("/AddKamar")
+    public String addKamar() {
+        return "AddKamar";
     }
-
-    // Menampilkan halaman pemesanan kamar
-    @GetMapping("/pesan")
-    public String pesan(@RequestParam("idKamar") Long idKamar, Model model, HttpSession session) {
-        // Memeriksa apakah user sudah login
-        CalonPenyewa user = (CalonPenyewa) session.getAttribute("user");
-        if (user == null) {
+    @PostMapping("/AddKamar")
+    public String addKamar(
+                            @RequestParam("type") String type,
+                           @RequestParam("harga") float harga,
+                           @RequestParam("gambar") MultipartFile gambarFile,
+                           HttpSession session,
+                           RedirectAttributes redirectAttributes,
+                           Model model) {
+        // Validasi login penjaga
+        Object penjaga = session.getAttribute("penjaga");
+        if (penjaga == null) {
             return "redirect:/login";
         }
-
-        Kamar kamar = kamarService.getKamarById(idKamar);
-        if (kamar == null) {
-            return "redirect:/";
+    
+        try {
+            // Panggil service untuk menyimpan kamar dan gambar
+            kamarService.saveKamarWithGambar(type, harga, gambarFile);
+    
+            redirectAttributes.addFlashAttribute("successMessage", "Kamar berhasil ditambahkan!");
+        } catch (IOException e) {
+            model.addAttribute("errorMessage", "Terjadi kesalahan saat menyimpan gambar: " + e.getMessage());
+            return "AddKamar";
+        } catch (IllegalArgumentException e) {
+            model.addAttribute("errorMessage", e.getMessage());
+            return "AddKamar";
         }
-
-        model.addAttribute("kamar", kamar);
-        model.addAttribute("user", user);  // Menambahkan user ke model
-
-        return "pesan";
+    
+        return "/home";
     }
+    
 
     // Menyimpan pemesanan
     @PostMapping("/pesan")
