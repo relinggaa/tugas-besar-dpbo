@@ -27,6 +27,9 @@ public class CalonPenyewa {
 
     @Column(length = 15)
     private String phoneNumber;
+    
+    @Column(length = 200)
+    private String complain;
 
     // Getter and Setter for each field
 
@@ -84,5 +87,13 @@ public class CalonPenyewa {
 
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
+    }
+    
+    public String getComplain() {
+        return complain;
+    }
+
+    public void setComplain(String complain) {
+        this.complain = complain;
     }
 }

@@ -86,11 +86,6 @@ public class HomeController {
     public String getIndex() {
         return "index";
     }
-    
-    @GetMapping("complain")
-    public String getComplain() {
-        return "complain";
-    }
 
     // Menampilkan halaman login
     @GetMapping("/login")
@@ -150,7 +145,7 @@ public class HomeController {
     
         if (pemilik != null) {
             session.setAttribute("pemilik", pemilik);
-            return "/home"; // Redirect ke halaman home jika login berhasil
+            return "/homepemilik"; // Redirect ke halaman home jika login berhasil
         } else {
             model.addAttribute("error", "Email atau password salah");
             return "login-pemilik"; 
@@ -299,7 +294,18 @@ public class HomeController {
         model.addAttribute("listCalonPenyewa", listCalonPenyewa);
         return "penghuni"; 
     }
+
+    @GetMapping("/complain")
+    public String getComplain(Model model) {
+        List<CalonPenyewa> listCalonPenyewa = calonPenyewaService.getAllCalonPenyewa();
+        model.addAttribute("listCalonPenyewa", listCalonPenyewa);
+        return "complain"; 
+    }
     
+    @GetMapping("/homepemilik")
+    public String getHomepemilik() {
+        return "homepemilik";
+    }
 
     @GetMapping("/home")
     public String home() {
