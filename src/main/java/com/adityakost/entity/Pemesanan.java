@@ -24,6 +24,8 @@ public class Pemesanan {
 
     @Column(name = "jumlah_biaya", nullable = false)
     private float totalBiaya;
+    @ManyToOne
+    @JoinColumn(name = "id_kamar")
 
     // Getters dan Setters
 

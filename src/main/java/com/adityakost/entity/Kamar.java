@@ -1,5 +1,7 @@
 package com.adityakost.entity;
 
+import java.util.List;
+
 import jakarta.persistence.*;
 
 
@@ -20,7 +22,8 @@ public class Kamar {
 
     @OneToOne(mappedBy = "kamar", cascade = CascadeType.ALL)
     private Gambar gambar;
-
+    @OneToMany(mappedBy = "kamar", cascade = CascadeType.ALL)
+    private List<Pemesanan> pemesanans;
     // Constructor, getters, and setters
 
     public Kamar() {}
