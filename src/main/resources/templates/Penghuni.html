@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link rel="stylesheet" href="StylePenjaga.css">
+    <title>AdityaKost</title>
+  </head>
+  <body>
+    <div id="navbarContainer"></div>
+      
+      <div class="form container mt-5">
+        <table class="table table-dark">
+            <thead>
+                <h1>Lantai Satu</h1>
+            </thead>
+            <tbody>
+              <tr class="table-active">
+                <th scope="col">NO</th>
+                <th scope="col">Nama</th>
+                <th scope="col">Data</th>
+                <th scope="col">Nomor Kamar</th>
+              </tr>
+              <tr>
+                <th scope="row">1</th>
+                <td>Aditya Nanda</td>
+                <td>103022300149</td>
+                <td>101</td>
+              </tr>
+              <tr>
+                <th scope="row">2</th>
+                <td>Relingga Aditya</td>
+                <td>103022300149</td>
+                <td>102</td>
+              </tr>
+            </tbody>
+          </table>
+      </div>
+
+      <script>
+        fetch("navbar.html").then((response) => response.text())
+        .then((data) => {
+          document.getElementById("navbarContainer").innerHTML = data;
+        })
+        .catch((error) => console.error("Error fetching sidebar:", error));
+      </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+
+   
+  </body>
+</html>
