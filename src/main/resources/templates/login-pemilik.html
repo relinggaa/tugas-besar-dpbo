@@ -15,7 +15,7 @@
         <div class="row justify-content-center">
           <div class="col-md-6 col-lg-5">
             <div class="card shadow p-4 border-0">
-              <h3 class="text-center mb-4">Login</h3>
+              <h3 class="text-center mb-4">Login Pemilik</h3>
 
               <!-- Tampilkan Pesan Error -->
               <div
@@ -26,14 +26,14 @@
                 <span th:text="${error}"></span>
               </div>
 
-              <form action="/login" method="POST">
+              <form action="/login-pemilik" method="POST">
                 <!-- Email Field -->
                 <div class="mb-3">
                   <label class="form-label" for="email">Email address</label>
                   <input
-                    type="email"
-                    id="email"
-                    name="email"
+                    type="email-pemilik"
+                    id="email-pemilik"
+                    name="email-pemilik"
                     class="form-control form-control-lg"
                     required
                   />
@@ -44,8 +44,8 @@
                   <label class="form-label" for="password">Password</label>
                   <input
                     type="password"
-                    id="password"
-                    name="password"
+                    id="password-pemilik"
+                    name="password-pemilik"
                     class="form-control form-control-lg"
                     required
                   />
@@ -59,20 +59,7 @@
 
                 <div class="text-center mt-3">
                   <p class="small text-muted">
-                    Belum punya akun?
-                    <a href="/register" class="text-primary">Daftar di sini</a>
-                  </p>
-                </div>
-                <div class="text-center mt-3">
-                  <p class="small text-muted">
-                    Untuk login Penjaga
-                    <a href="/login-penjaga" class="text-primary">klik disini</a>
-                  </p>
-                </div>
-                <div class="text-center mt-3">
-                  <p class="small text-muted">
-                    Untuk login Pemilik
-                    <a href="/login-pemilik" class="text-primary">klik disini</a>
+                    hubungi team IT untuk membuat akun untuk pemilik
                   </p>
                 </div>
               </form>
