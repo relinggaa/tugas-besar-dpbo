@@ -9,6 +9,7 @@ import com.adityakost.entity.Pemilik;
 import com.adityakost.repo.CalonPenyewaRepo;
 import com.adityakost.repo.PenjagaRepo;
 import com.adityakost.repo.PemilikRepo;
+import com.adityakost.service.CalonPenyewaService;
 import com.adityakost.service.GambarService;
 import com.adityakost.service.KamarService;
 import com.adityakost.service.PemesananService;
@@ -33,6 +34,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.springframework.web.bind.annotation.RequestBody;
+
 
 @Controller
 @RequestMapping("")
@@ -55,6 +58,9 @@ public class HomeController {
     
     @Autowired
     private PemilikService pemilikService;
+
+    @Autowired
+    private CalonPenyewaService calonPenyewaService;
 
     // Menampilkan halaman utama dengan daftar kamar
     @GetMapping
@@ -250,6 +256,33 @@ public class HomeController {
     public String getProfile() {
         return "profile";
     }
+
+
+
+    //show penhuni
+    @GetMapping("/penghuni")
+    public String getPenghuni(Model model) {
+        List<CalonPenyewa> listCalonPenyewa = calonPenyewaService.getAllCalonPenyewa();
+        model.addAttribute("listCalonPenyewa", listCalonPenyewa);
+        return "penghuni"; 
+    }
     
+
+    @GetMapping("/home")
+    public String home() {
+        return "home";
+    }
+
+    // @GetMapping("/Edit")
+    // public String getMethodName(@RequestParam String param) {
+    //     return new String();
+    // }
+    
+    // @PostMapping("path")
+    // public String postMethodName(@RequestBody String entity) {
+    //     //TODO: process POST request
+        
+    //     return entity;
+    // }
     
 }

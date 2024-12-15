@@ -4,13 +4,13 @@ import com.adityakost.entity.CalonPenyewa;
 import com.adityakost.repo.CalonPenyewaRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
+import java.util.List;
 @Service
 public class CalonPenyewaService {
 
     private final CalonPenyewaRepo calonPenyewaRepo;
 
-    @Autowired
+    
     public CalonPenyewaService(CalonPenyewaRepo calonPenyewaRepo) {
         this.calonPenyewaRepo = calonPenyewaRepo;
     }
@@ -29,5 +29,8 @@ public class CalonPenyewaService {
 
     public boolean phoneNumberExists(String phoneNumber) {
         return calonPenyewaRepo.existsByPhoneNumber(phoneNumber);
+    }
+    public List<CalonPenyewa> getAllCalonPenyewa() {
+        return calonPenyewaRepo.findAll();
     }
 }
