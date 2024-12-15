@@ -5,13 +5,16 @@ import com.adityakost.entity.Gambar;
 import com.adityakost.entity.Kamar;
 import com.adityakost.entity.Pemesanan;
 import com.adityakost.entity.Penjaga;
+import com.adityakost.entity.Pemilik;
 import com.adityakost.repo.CalonPenyewaRepo;
 import com.adityakost.repo.PenjagaRepo;
+import com.adityakost.repo.PemilikRepo;
 import com.adityakost.service.CalonPenyewaService;
 import com.adityakost.service.GambarService;
 import com.adityakost.service.KamarService;
 import com.adityakost.service.PemesananService;
 import com.adityakost.service.PenjagaService;
+import com.adityakost.service.PemilikService;
 
 import jakarta.persistence.IdClass;
 import jakarta.servlet.http.HttpSession;
@@ -53,6 +56,9 @@ public class HomeController {
 
     @Autowired
     private PenjagaService penjagaService;
+    
+    @Autowired
+    private PemilikService pemilikService;
 
     @Autowired
     private CalonPenyewaService calonPenyewaService;
@@ -101,6 +107,11 @@ public class HomeController {
     public String loginPenjaga() {
         return "login-penjaga";
     }
+    
+    @GetMapping("/login-pemilik")
+    public String loginPemilik() {
+        return "login-pemilik";
+    }
 
 
     // Proses login
@@ -117,6 +128,22 @@ public class HomeController {
         } else {
             model.addAttribute("error", "Email atau password salah");
             return "login-penjaga"; 
+        }
+    }
+    
+    @PostMapping("/login-pemilik")
+    public String loginPemilik(@RequestParam("email-pemilik") String emailPemilik,
+                                @RequestParam("password-pemilik") String passwordPemilik,
+                                HttpSession session, Model model) {
+        
+        Pemilik pemilik = pemilikService.findByEmailPemilikAndPasswordPemilik(emailPemilik, passwordPemilik);
+    
+        if (pemilik != null) {
+            session.setAttribute("pemilik", pemilik);
+            return "/home"; // Redirect ke halaman home jika login berhasil
+        } else {
+            model.addAttribute("error", "Email atau password salah");
+            return "login-pemilik"; 
         }
     }
     
