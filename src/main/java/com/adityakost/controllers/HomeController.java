@@ -82,6 +82,16 @@ public class HomeController {
         return "index";
     }
 
+    @GetMapping("index")
+    public String getIndex() {
+        return "index";
+    }
+    
+    @GetMapping("complain")
+    public String getComplain() {
+        return "complain";
+    }
+
     // Menampilkan halaman login
     @GetMapping("/login")
     public String login() {
