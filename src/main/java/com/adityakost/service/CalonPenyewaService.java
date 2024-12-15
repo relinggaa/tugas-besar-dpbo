@@ -4,6 +4,9 @@ import com.adityakost.entity.CalonPenyewa;
 import com.adityakost.repo.CalonPenyewaRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 import java.util.List;
 @Service
 public class CalonPenyewaService {
@@ -42,5 +45,13 @@ public class CalonPenyewaService {
     }
     public CalonPenyewa getCalonPenyewaByEmailAndPassword(String email, String password) {
         return calonPenyewaRepo.findByEmailAndPassword(email, password);
+    }
+
+    public void saveComplain(String complain) {
+        if (complain == null || complain.isEmpty()) {
+            throw new IllegalArgumentException("Komplain tidak boleh kosong!");
+        }
+
+        System.out.println("Komplain disimpan: " + complain);
     }
 }

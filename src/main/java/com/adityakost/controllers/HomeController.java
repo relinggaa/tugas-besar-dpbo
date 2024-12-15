@@ -406,12 +406,8 @@ public String updateProfile(@ModelAttribute CalonPenyewa calonPenyewa, HttpSessi
     session.setAttribute("user", calonPenyewa);
 
     return "redirect:/index"; // Redirect to the profile page after updating
-}
-
-    
-
-    
     }
+}
     
     
     
