@@ -166,6 +166,28 @@ public class HomeController {
         return modelAndView;
     }
 
+    @PostMapping("/register")
+    public String registerSubmit(@ModelAttribute CalonPenyewa calonPenyewa, RedirectAttributes redirectAttributes) {
+        if (calonPenyewaRepo.existsByUsername(calonPenyewa.getUsername())) {
+            redirectAttributes.addFlashAttribute("error", "Username sudah terdaftar");
+            return "redirect:/register";
+        }
+
+        if (calonPenyewaRepo.existsByEmail(calonPenyewa.getEmail())) {
+            redirectAttributes.addFlashAttribute("error", "Email sudah terdaftar");
+            return "redirect:/register";
+        }
+
+        if (calonPenyewaRepo.existsByPhoneNumber(calonPenyewa.getPhoneNumber())) {
+            redirectAttributes.addFlashAttribute("error", "Nomor HP sudah terdaftar");
+            return "redirect:/register";
+        }
+
+        calonPenyewaRepo.save(calonPenyewa);
+        redirectAttributes.addFlashAttribute("success", true); 
+        return "redirect:/login"; 
+    }
+
     // Menambahkan kamar
     @GetMapping("/AddKamar")
     public String addKamar() {
