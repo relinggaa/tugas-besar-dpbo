@@ -26,13 +26,28 @@ public class GambarService {
     }
 
     public void saveGambarWithKamar(Kamar kamar, MultipartFile gambarFile) throws IOException {
+        String fileType = gambarFile.getContentType();
+    
+        if (fileType == null || !fileType.startsWith("image")) {
+            throw new IllegalArgumentException("Hanya file gambar yang diizinkan.");
+        }
+    
         Gambar gambar = new Gambar();
         gambar.setNama(gambarFile.getOriginalFilename());
         gambar.setDataGambar(gambarFile.getBytes());
         gambar.setKamar(kamar);
-
+    
         gambarRepo.save(gambar);
     }
+    
+    
+
+    
+
+
+  
 }
+
+
 
 

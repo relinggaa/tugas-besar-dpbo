@@ -52,4 +52,14 @@ public class KamarService {
             gambarService.saveGambarWithKamar(kamar, gambarFile);
         }
     }
+    public void updateKamar(Long id, Kamar kamar) {
+        Kamar existingKamar = kamarRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Kamar tidak ditemukan!"));
+        existingKamar.setType(kamar.getType());
+        existingKamar.setHarga(kamar.getHarga());
+        existingKamar.setGambar(kamar.getGambar()); // Memperbarui gambar jika ada
+        kamarRepo.save(existingKamar);
+    }
+    
+    
 }

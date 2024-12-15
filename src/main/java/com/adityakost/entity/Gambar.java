@@ -46,4 +46,5 @@ public class Gambar {
     public void setKamar(Kamar kamar) {
         this.kamar = kamar;
     }
+    
 }

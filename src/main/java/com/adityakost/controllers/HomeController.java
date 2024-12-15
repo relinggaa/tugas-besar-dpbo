@@ -20,6 +20,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -246,16 +247,54 @@ public class HomeController {
         return "home";
     }
 
-    // @GetMapping("/Edit")
-    // public String getMethodName(@RequestParam String param) {
-    //     return new String();
-    // }
+    @GetMapping("edit/{id}")
+    public String editKamar(@PathVariable("id") Long id, Model model) {
+        Kamar kamar = kamarService.getKamarById(id);
+        if (kamar == null) {
+            throw new RuntimeException("Kamar tidak ditemukan");
+        }
+        model.addAttribute("kamar", kamar);
+        return "Edit";  // Pastikan view editKamar ada di folder resources/templates
+    }
     
-    // @PostMapping("path")
-    // public String postMethodName(@RequestBody String entity) {
-    //     //TODO: process POST request
-        
-    //     return entity;
-    // }
+    @PostMapping("kamar/edit/{id}")
+    public String updateKamar(
+            @PathVariable("id") Long id, 
+            @ModelAttribute("kamar") Kamar kamar, 
+            @RequestParam(value = "gambar", required = false) MultipartFile gambarFile, 
+            RedirectAttributes redirectAttributes) {
+        try {
+            // Ambil Kamar berdasarkan ID
+            Kamar existingKamar = kamarService.getKamarById(id);
+            if (existingKamar == null) {
+                throw new RuntimeException("Kamar tidak ditemukan!");
+            }
     
-}
+            // Perbarui informasi kamar
+            existingKamar.setType(kamar.getType());
+            existingKamar.setHarga(kamar.getHarga());
+    
+            // Jika gambar baru diunggah, simpan gambar baru
+            if (gambarFile != null && !gambarFile.isEmpty()) {
+                gambarService.saveGambarWithKamar(existingKamar, gambarFile);
+            }
+    
+            // Simpan perubahan
+            kamarService.saveKamar(existingKamar);
+    
+            redirectAttributes.addFlashAttribute("successMessage", "Kamar berhasil diperbarui!");
+            return "redirect:/showKamar"; // Atur redirect ke halaman yang sesuai
+        } catch (IOException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Terjadi kesalahan saat menyimpan gambar: " + e.getMessage());
+            return "redirect:/edit/" + id;
+        }
+    }
+    
+    
+    }
+    
+    
+    
+    
+    
+    
