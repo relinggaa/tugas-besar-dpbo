@@ -9,6 +9,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.Base64;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class GambarService {
@@ -39,15 +42,21 @@ public class GambarService {
     
         gambarRepo.save(gambar);
     }
-    
-    
 
+    // Method baru untuk mendapatkan gambar semua kamar dalam bentuk map
+    public Map<Long, String> getGambarMapForKamar(List<Kamar> kamarList) {
+        Map<Long, String> gambarMap = new HashMap<>();
+        
+        for (Kamar kamar : kamarList) {
+            String base64Image = getGambarBase64(kamar.getId()); // Ambil gambar base64 untuk setiap kamar
+            gambarMap.put(kamar.getId(), base64Image); // Tambahkan ke map
+        }
+        
+        return gambarMap;
+    }
+    public String getBase64Image(Long kamarId) {
+        Gambar gambar = gambarRepo.findByKamarId(kamarId);
+        return gambar != null ? Base64.getEncoder().encodeToString(gambar.getDataGambar()) : null;
+    }
     
-
-
-  
 }
-
-
-
-

@@ -318,6 +318,40 @@ public class HomeController {
     }
     
     
+
+    
+    @GetMapping("/kamar/list")
+    public String listKamar(Model model) {
+        List<Kamar> kamarList = kamarService.getAllKamar();
+        model.addAttribute("listKamar", kamarList);
+        
+        // Ambil gambar kamar yang terhubung
+        Map<Long, String> gambarMap = gambarService.getGambarMapForKamar(kamarList);
+        model.addAttribute("gambarMap", gambarMap);
+        
+        return "showKamar";  // Nama file HTML yang sesuai
+    }
+    
+    public Map<Long, String> getGambarMapForKamar(List<Kamar> kamarList) {
+        Map<Long, String> gambarMap = new HashMap<>();
+        for (Kamar kamar : kamarList) {
+            // Ambil gambar yang sesuai dan encode dalam base64
+            String base64Image = gambarService.getGambarBase64(kamar.getId());
+
+
+            gambarMap.put(kamar.getId(), base64Image);
+        }
+        return gambarMap;
+    }
+    @GetMapping("/delete/{id}")
+    public String deleteKamar(@PathVariable Long id) {
+        kamarService.deleteKamar(id); // Logika untuk menghapus data
+        return "redirect:/showKamar"; // Setelah menghapus, kembali ke halaman daftar kamar
+    }
+   
+    
+
+    
     }
     
     

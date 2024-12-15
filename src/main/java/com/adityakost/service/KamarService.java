@@ -60,6 +60,15 @@ public class KamarService {
         existingKamar.setGambar(kamar.getGambar()); // Memperbarui gambar jika ada
         kamarRepo.save(existingKamar);
     }
-    
-    
+
+    public void deleteKamar(Long id) {
+        // Mengecek apakah kamar dengan ID tertentu ada
+        Optional<Kamar> kamar = kamarRepo.findById(id);
+        if (kamar.isPresent()) {
+            kamarRepo.deleteById(id); // Menghapus kamar berdasarkan ID
+        } else {
+            throw new IllegalArgumentException("Kamar dengan ID " + id + " tidak ditemukan.");
+        }
+    }
+
 }
