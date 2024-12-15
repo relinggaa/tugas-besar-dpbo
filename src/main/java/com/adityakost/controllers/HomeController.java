@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.SessionAttribute;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -123,6 +124,8 @@ public class HomeController {
         return "login-pemilik";
     }
 
+   
+        
 
     // Proses login
     @PostMapping("/login-penjaga")
@@ -285,11 +288,7 @@ public class HomeController {
         return "redirect:/";
     }
 
-    @GetMapping("profile")
-    public String getProfile() {
-        return "profile";
-    }
-
+  
 
 
     //show penhuni
@@ -380,7 +379,29 @@ public class HomeController {
         kamarService.deleteKamar(id); // Logika untuk menghapus data
         return "redirect:/showKamar"; // Setelah menghapus, kembali ke halaman daftar kamar
     }
-   
+    @GetMapping("/profile")
+    public String showProfile(HttpSession session, Model model) {
+    // Retrieve the user object from the session
+    CalonPenyewa calonPenyewa = (CalonPenyewa) session.getAttribute("user");
+    
+    if (calonPenyewa == null) {
+        return "redirect:/login"; // Redirect to login page if no user is logged in
+    }
+    
+    model.addAttribute("user", calonPenyewa);
+    return "profile"; // Show the profile page
+}
+@PostMapping("/update-profile")
+public String updateProfile(@ModelAttribute CalonPenyewa calonPenyewa, HttpSession session) {
+    // Update the user in the database
+    calonPenyewaService.updateCalonPenyewa(calonPenyewa);
+
+    // Update session with the latest profile data
+    session.setAttribute("user", calonPenyewa);
+
+    return "redirect:/index"; // Redirect to the profile page after updating
+}
+
     
 
     

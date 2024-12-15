@@ -10,4 +10,5 @@ public interface CalonPenyewaRepo extends JpaRepository<CalonPenyewa, Long> {
     boolean existsByEmail(String email);
     boolean existsByPhoneNumber(String phoneNumber);
     CalonPenyewa findByEmailAndPassword(String email, String password);
+    
 }
