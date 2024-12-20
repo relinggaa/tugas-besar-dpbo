@@ -4,7 +4,6 @@ import java.util.List;
 
 import jakarta.persistence.*;
 
-
 @Entity
 @Table(name = "tbl_kamar")
 public class Kamar {
@@ -14,6 +13,9 @@ public class Kamar {
     @Column(name = "id_kamar")
     private Long id;
 
+    @Column(nullable = false, unique = true) // Nomor kamar harus unik
+    private String nomorKamar;
+
     @Column(nullable = false)
     private String type;
 
@@ -22,23 +24,35 @@ public class Kamar {
 
     @OneToOne(mappedBy = "kamar", cascade = CascadeType.ALL)
     private Gambar gambar;
-    @OneToMany(mappedBy = "kamar", cascade = CascadeType.ALL)
-    private List<Pemesanan> pemesanans;
-    // Constructor, getters, and setters
 
+    @OneToMany(mappedBy = "kamar", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Pemesanan> pemesanans;
+    
+
+    // Constructors
     public Kamar() {}
 
-    public Kamar(String type, float harga) {
+    public Kamar(String nomorKamar, String type, float harga) {
+        this.nomorKamar = nomorKamar;
         this.type = type;
         this.harga = harga;
     }
 
+    // Getters and Setters
     public Long getId() {
         return id;
     }
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getNomorKamar() {
+        return nomorKamar;
+    }
+
+    public void setNomorKamar(String nomorKamar) {
+        this.nomorKamar = nomorKamar;
     }
 
     public String getType() {
@@ -64,6 +78,12 @@ public class Kamar {
     public void setGambar(Gambar gambar) {
         this.gambar = gambar;
     }
-  
-    
+
+    public List<Pemesanan> getPemesanans() {
+        return pemesanans;
+    }
+
+    public void setPemesanans(List<Pemesanan> pemesanans) {
+        this.pemesanans = pemesanans;
+    }
 }

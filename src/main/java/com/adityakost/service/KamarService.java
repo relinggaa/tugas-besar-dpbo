@@ -3,6 +3,8 @@ package com.adityakost.service;
 import com.adityakost.entity.Kamar;
 
 import com.adityakost.repo.KamarRepo;
+import com.adityakost.repo.PemesananRepo;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -35,23 +37,24 @@ public class KamarService {
     public void saveKamar(Kamar kamar) {
         kamarRepo.save(kamar);
     }
-
-    public void saveKamarWithGambar(String type, float harga, MultipartFile gambarFile) throws IOException {
+    public void saveKamarWithGambar(String nomorKamar, String type, float harga, MultipartFile gambarFile) throws IOException {
         if (harga <= 0) {
             throw new IllegalArgumentException("Harga harus lebih besar dari 0.");
         }
-
+    
         // Membuat entitas Kamar
         Kamar kamar = new Kamar();
+        kamar.setNomorKamar(nomorKamar);
         kamar.setType(type);
         kamar.setHarga(harga);
         saveKamar(kamar);
-
+    
         // Menyimpan gambar jika ada
         if (!gambarFile.isEmpty()) {
             gambarService.saveGambarWithKamar(kamar, gambarFile);
         }
     }
+    
     public void updateKamar(Long id, Kamar kamar) {
         Kamar existingKamar = kamarRepo.findById(id)
                 .orElseThrow(() -> new RuntimeException("Kamar tidak ditemukan!"));
@@ -61,14 +64,17 @@ public class KamarService {
         kamarRepo.save(existingKamar);
     }
 
+   @Autowired
+    private PemesananRepo pemesananRepo;
+
     public void deleteKamar(Long id) {
-        // Mengecek apakah kamar dengan ID tertentu ada
-        Optional<Kamar> kamar = kamarRepo.findById(id);
-        if (kamar.isPresent()) {
-            kamarRepo.deleteById(id); // Menghapus kamar berdasarkan ID
-        } else {
-            throw new IllegalArgumentException("Kamar dengan ID " + id + " tidak ditemukan.");
-        }
+        // Hapus semua pemesanan terkait kamar
+        pemesananRepo.deleteByKamarId(id);
+
+        // Hapus kamar setelah pemesanan terkait dihapus
+        kamarRepo.deleteById(id);
     }
+
+    
 
 }

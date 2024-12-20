@@ -1,12 +1,14 @@
 package com.adityakost.controllers;
 
 import com.adityakost.entity.CalonPenyewa;
+import com.adityakost.entity.Complaint;
 import com.adityakost.entity.Gambar;
 import com.adityakost.entity.Kamar;
 import com.adityakost.entity.Pemesanan;
 import com.adityakost.entity.Penjaga;
 import com.adityakost.entity.Pemilik;
 import com.adityakost.repo.CalonPenyewaRepo;
+import com.adityakost.repo.ComplaintsRepo;
 import com.adityakost.repo.PenjagaRepo;
 import com.adityakost.repo.PemilikRepo;
 import com.adityakost.service.CalonPenyewaService;
@@ -63,13 +65,16 @@ public class HomeController {
 
     @Autowired
     private CalonPenyewaService calonPenyewaService;
-
+    @Autowired
+    private ComplaintsRepo  complaintRepo;
     // Menampilkan halaman utama dengan daftar kamar
-    @GetMapping
+    @GetMapping("/")
+
     public String welcome(Model model) {
         List<Kamar> listKamar = kamarService.getAllKamar();
+        System.out.println("List Kamar: " + listKamar); // Tambahkan log ini
         model.addAttribute("listKamar", listKamar);
-
+    
         // Menyertakan gambar Base64 untuk setiap kamar
         Map<Long, String> gambarMap = new HashMap<>();
         for (Kamar kamar : listKamar) {
@@ -79,9 +84,10 @@ public class HomeController {
             }
         }
         model.addAttribute("gambarMap", gambarMap);
-
+    
         return "index";
     }
+    
 
     @GetMapping("index")
     public String getIndex() {
@@ -193,12 +199,13 @@ public class HomeController {
     }
     @PostMapping("/AddKamar")
     public String addKamar(
-                            @RequestParam("type") String type,
-                           @RequestParam("harga") float harga,
-                           @RequestParam("gambar") MultipartFile gambarFile,
-                           HttpSession session,
-                           RedirectAttributes redirectAttributes,
-                           Model model) {
+            @RequestParam("nomorKamar") String nomorKamar,
+            @RequestParam("type") String type,
+            @RequestParam("harga") float harga,
+            @RequestParam("gambar") MultipartFile gambarFile,
+            HttpSession session,
+            RedirectAttributes redirectAttributes,
+            Model model) {
         // Validasi login penjaga
         Object penjaga = session.getAttribute("penjaga");
         if (penjaga == null) {
@@ -206,9 +213,7 @@ public class HomeController {
         }
     
         try {
-            // Panggil service untuk menyimpan kamar dan gambar
-            kamarService.saveKamarWithGambar(type, harga, gambarFile);
-    
+            kamarService.saveKamarWithGambar(nomorKamar, type, harga, gambarFile);
             redirectAttributes.addFlashAttribute("successMessage", "Kamar berhasil ditambahkan!");
         } catch (IOException e) {
             model.addAttribute("errorMessage", "Terjadi kesalahan saat menyimpan gambar: " + e.getMessage());
@@ -218,8 +223,9 @@ public class HomeController {
             return "AddKamar";
         }
     
-        return "/home";
+        return "redirect:/showKamar";
     }
+    
     
     @GetMapping("/pesan")
     public String pesan(@RequestParam("idKamar") Long idKamar, Model model, HttpSession session) {
@@ -306,19 +312,81 @@ public class HomeController {
 
     //show penhuni
     @GetMapping("/penghuni")
-    public String getPenghuni(Model model) {
-        List<CalonPenyewa> listCalonPenyewa = calonPenyewaService.getAllCalonPenyewa();
-        model.addAttribute("listCalonPenyewa", listCalonPenyewa);
-        return "penghuni"; 
-    }
-
-    @GetMapping("/complain")
-    public String getComplain(Model model) {
-        List<CalonPenyewa> listCalonPenyewa = calonPenyewaService.getAllCalonPenyewa();
-        model.addAttribute("listCalonPenyewa", listCalonPenyewa);
-        return "complain"; 
+    public String getPenghuni(HttpSession session, Model model) {
+        // Periksa apakah penjaga atau pemilik sudah login
+        Object penjaga = session.getAttribute("penjaga");
+        Object pemilik = session.getAttribute("pemilik");
+        if (penjaga == null && pemilik == null) {
+            return "redirect:/login"; // Jika tidak ada sesi penjaga atau pemilik, redirect ke halaman login
+        }
+    
+        // Ambil data pemesanan untuk penghuni dengan kamar
+        List<Pemesanan> pemesananList = calonPenyewaService.getPenghuniDenganKamar();
+        model.addAttribute("pemesananList", pemesananList);
+    
+        return "penghuni"; // Tampilkan halaman penghuni
     }
     
+
+    @GetMapping("/complain")
+    public String showComplain(HttpSession session, Model model) {
+        // Periksa apakah penjaga sudah login
+        Penjaga penjaga = (Penjaga) session.getAttribute("penjaga");
+        if (penjaga == null) {
+            return "redirect:/login-penjaga";
+        }
+    
+        // Ambil semua komplain dari database
+        List<Complaint> complaints = complaintRepo.findAll();
+        model.addAttribute("complaints", complaints);
+    
+        return "complain";
+    }
+    
+    
+    @GetMapping("/addComplain")
+    public String getComplain(HttpSession session, Model model) {
+        // Periksa apakah pengguna sudah login
+        CalonPenyewa loggedInUser = (CalonPenyewa) session.getAttribute("user");
+        if (loggedInUser == null) {
+            return "redirect:/login"; // Jika belum login, redirect ke halaman login
+        }
+    
+        // Tambahkan informasi pengguna ke model jika diperlukan
+        model.addAttribute("user", loggedInUser);
+        return "addComplain"; // Jika sudah login, tampilkan halaman komplain
+    }
+    
+  @PostMapping("/addComplain")
+    public String addComplain(@RequestParam("complain") String complain,
+                          HttpSession session,
+                          Model model,
+                          RedirectAttributes redirectAttributes) {
+    // Periksa apakah pengguna sudah login
+    CalonPenyewa loggedInUser = (CalonPenyewa) session.getAttribute("user");
+    if (loggedInUser == null) {
+        return "redirect:/login";
+    }
+
+    // Validasi komplain
+    if (complain == null || complain.trim().isEmpty()) {
+        model.addAttribute("errorMessage", "Complaint cannot be empty!");
+        return "addComplain";
+    }
+
+    // Simpan komplain baru
+    Complaint newComplaint = new Complaint();
+    newComplaint.setUser(loggedInUser);
+    newComplaint.setComplain(complain);
+    complaintRepo.save(newComplaint);
+
+    redirectAttributes.addFlashAttribute("successMessage", "Complaint submitted successfully!");
+    return "redirect:/index";
+}
+
+    
+    
+
     @GetMapping("/homepemilik")
     public String getHomepemilik() {
         return "homepemilik";
@@ -399,28 +467,32 @@ public class HomeController {
         return gambarMap;
     }
     @GetMapping("/delete/{id}")
-    public String deleteKamar(@PathVariable Long id) {
-        kamarService.deleteKamar(id); // Logika untuk menghapus data
-        return "redirect:/showKamar"; // Setelah menghapus, kembali ke halaman daftar kamar
+    public String deleteKamar(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        try {
+            kamarService.deleteKamar(id);
+            redirectAttributes.addFlashAttribute("successMessage", "Kamar berhasil dihapus!");
+        } catch (RuntimeException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+        }
+        return "redirect:/showKamar";
     }
+    
     @GetMapping("/profile")
     public String showProfile(HttpSession session, Model model) {
     // Retrieve the user object from the session
     CalonPenyewa calonPenyewa = (CalonPenyewa) session.getAttribute("user");
     
     if (calonPenyewa == null) {
-        return "redirect:/login"; // Redirect to login page if no user is logged in
+        return "redirect:/login"; 
     }
     
     model.addAttribute("user", calonPenyewa);
-    return "profile"; // Show the profile page
+    return "profile"; 
 }
 @PostMapping("/update-profile")
 public String updateProfile(@ModelAttribute CalonPenyewa calonPenyewa, HttpSession session) {
-    // Update the user in the database
+   
     calonPenyewaService.updateCalonPenyewa(calonPenyewa);
-
-    // Update session with the latest profile data
     session.setAttribute("user", calonPenyewa);
 
     return "redirect:/index"; // Redirect to the profile page after updating
