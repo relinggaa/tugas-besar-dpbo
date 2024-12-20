@@ -221,6 +221,24 @@ public class HomeController {
         return "/home";
     }
     
+    @GetMapping("/pesan")
+    public String pesan(@RequestParam("idKamar") Long idKamar, Model model, HttpSession session) {
+        // Memeriksa apakah user sudah login
+        CalonPenyewa user = (CalonPenyewa) session.getAttribute("user");
+        if (user == null) {
+            return "redirect:/login";
+        }
+
+        Kamar kamar = kamarService.getKamarById(idKamar);
+        if (kamar == null) {
+            return "redirect:/";
+        }
+
+        model.addAttribute("kamar", kamar);
+        model.addAttribute("user", user);  // Menambahkan user ke model
+
+        return "pesan";
+    }
 
     // Menyimpan pemesanan
     @PostMapping("/pesan")
