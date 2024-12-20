@@ -1,5 +1,6 @@
 package com.adityakost.entity;
 
+import java.util.List;
 import jakarta.persistence.*;
 
 @Entity
@@ -27,12 +28,14 @@ public class CalonPenyewa {
 
     @Column(length = 15)
     private String phoneNumber;
-    
-    @Column(length = 200)
-    private String complain;
 
-    // Getter and Setter for each field
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = false)
+    private List<Complaint> complaints;
 
+    @OneToMany(mappedBy = "calonPenyewa", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Pemesanan> pemesanans;
+
+    // Getters dan Setters
     public Long getIdCalonPenyewa() {
         return idCalonPenyewa;
     }
@@ -88,13 +91,20 @@ public class CalonPenyewa {
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
     }
-    
-    public String getComplain() {
-        return complain;
+
+    public List<Complaint> getComplaints() {
+        return complaints;
     }
 
-    public void setComplain(String complain) {
-        this.complain = complain;
+    public void setComplaints(List<Complaint> complaints) {
+        this.complaints = complaints;
     }
-  
+
+    public List<Pemesanan> getPemesanans() {
+        return pemesanans;
+    }
+
+    public void setPemesanans(List<Pemesanan> pemesanans) {
+        this.pemesanans = pemesanans;
+    }
 }

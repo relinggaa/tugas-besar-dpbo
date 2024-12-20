@@ -15,20 +15,21 @@ public class Pemesanan {
     @JoinColumn(name = "id_kamar", nullable = false)
     private Kamar kamar;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "id_calon_penyewa", nullable = false)
     private CalonPenyewa calonPenyewa;
 
-    @Column(name = "durasi_bulan", nullable = false)
+    @Column(name = "durasi", nullable = false, columnDefinition = "INT DEFAULT 1")
     private int durasi;
+    
 
     @Column(name = "jumlah_biaya", nullable = false)
     private float totalBiaya;
-    @ManyToOne
-    @JoinColumn(name = "id_kamar")
-
+    public Pemesanan() {
+        this.durasi = 1; 
+    }
+    
     // Getters dan Setters
-
     public Long getIdPemesanan() {
         return idPemesanan;
     }

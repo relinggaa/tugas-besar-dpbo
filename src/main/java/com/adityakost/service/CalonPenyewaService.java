@@ -45,8 +45,15 @@ public class CalonPenyewaService {
     }
 
     public void updateCalonPenyewa(CalonPenyewa calonPenyewa) {
+        CalonPenyewa existingCalonPenyewa = calonPenyewaRepo.findById(calonPenyewa.getIdCalonPenyewa())
+                .orElseThrow(() -> new RuntimeException("Calon Penyewa tidak ditemukan"));
+    
+        
+        calonPenyewa.setComplaints(existingCalonPenyewa.getComplaints());
+    
         calonPenyewaRepo.save(calonPenyewa);
     }
+    
 
     public CalonPenyewa getCalonPenyewaByEmailAndPassword(String email, String password) {
         return calonPenyewaRepo.findByEmailAndPassword(email, password);
@@ -61,15 +68,35 @@ public class CalonPenyewaService {
 
     public List<CalonPenyewa> getCalonPenyewaWithComplain() {
         return calonPenyewaRepo.findAll()
-                .stream()
-                .filter(p -> p.getComplain() != null && !p.getComplain().trim().isEmpty())
-                .collect(Collectors.toList());
+            .stream()
+            .filter(p -> p.getComplaints() != null && !p.getComplaints().isEmpty())
+            .collect(Collectors.toList());
     }
-
+    
     /**
      * Mendapatkan Calon Penyewa yang memiliki pemesanan kamar.
      */
     public List<Pemesanan> getPenghuniDenganKamar() {
         return pemesananRepo.findAll();
     }
+
+    public void deleteCalonPenyewaById(Long id) {
+        if (!calonPenyewaRepo.existsById(id)) {
+            throw new RuntimeException("Penghuni dengan ID " + id + " tidak ditemukan!");
+        }
+        calonPenyewaRepo.deleteById(id);
+    }
+    public void savePemesanan(Pemesanan pemesanan, Long idCalonPenyewa) {
+        // Ambil ulang CalonPenyewa dari database
+        CalonPenyewa calonPenyewa = calonPenyewaRepo.findById(idCalonPenyewa)
+                .orElseThrow(() -> new RuntimeException("Calon Penyewa tidak ditemukan dengan ID: " + idCalonPenyewa));
+
+        // Pastikan entitas CalonPenyewa dalam konteks Hibernate
+        pemesanan.setCalonPenyewa(calonPenyewa);
+
+        // Simpan pemesanan
+        pemesananRepo.save(pemesanan);
+    }
+  
+    
 }

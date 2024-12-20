@@ -86,4 +86,9 @@ public class Kamar {
     public void setPemesanans(List<Pemesanan> pemesanans) {
         this.pemesanans = pemesanans;
     }
+
+    // Method to get the ID of the Kamar
+    public Long getIdKamar() {
+        return id;
+    }
 }

@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Pemesanan</title>
+    <title>Pemesanan Kamar</title>
     <link
       rel="stylesheet"
       href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
@@ -28,13 +28,21 @@
         ></button>
       </div>
 
+      <!-- Form Pemesanan -->
       <form
         th:action="@{/pesan}"
         method="post"
         id="bookingForm"
         onsubmit="hideButton()"
       >
+        <input
+          type="hidden"
+          name="idCalonPenyewa"
+          th:value="${user.idCalonPenyewa}"
+        />
         <input type="hidden" name="idKamar" th:value="${kamar.id}" />
+
+        <!-- Input untuk memilih kamar -->
         <div class="form-group">
           <label for="kamar">Kamar</label>
           <input
@@ -45,6 +53,8 @@
             readonly
           />
         </div>
+
+        <!-- Input untuk memilih durasi -->
         <div class="form-group">
           <label for="durasi">Durasi (bulan)</label>
           <select id="durasi" name="durasi" class="form-control" required>
@@ -55,24 +65,37 @@
             ></option>
           </select>
         </div>
+
+        <!-- Input untuk biaya per bulan -->
         <div class="form-group">
           <label for="harga">Biaya per Bulan</label>
           <input
             type="text"
             id="harga"
             class="form-control"
-            th:value="'Rp' + ${kamar.harga}"
+            th:value="${kamar.harga}"
             readonly
           />
         </div>
+
+        <!-- Input untuk total biaya -->
         <div class="form-group">
-          <label for="total">Total Biaya</label>
-          <input type="text" id="total" class="form-control" readonly />
+          <label for="totalBiaya">Total Biaya</label>
+          <input
+            name="totalBiaya"
+            type="number"
+            id="totalBiaya"
+            class="form-control"
+            readonly
+          />
         </div>
+
+        <!-- Tombol untuk submit -->
         <button type="submit" class="btn btn-primary" id="pesanButton">
           Pesan Sekarang
         </button>
-        <!-- Tombol Kembali ke Index -->
+
+        <!-- Tombol Kembali ke halaman utama -->
         <a href="/" class="btn btn-secondary ml-2">Kembali</a>
       </form>
     </div>
@@ -86,10 +109,9 @@
       $(document).ready(function () {
         $("#durasi").change(function () {
           let durasi = parseInt($(this).val());
-          let harga = parseFloat(
-            $("#harga").val().replace("Rp", "").replace(/,/g, "")
-          );
-          $("#total").val("Rp" + (durasi * harga).toLocaleString());
+          let harga = parseFloat($("#harga").val());
+          let totalBiaya = durasi * harga;
+          $("#totalBiaya").val(totalBiaya); // Mengisi total biaya dengan nilai float
         });
       });
 

@@ -99,7 +99,7 @@ public class HomeController {
     public String login() {
         return "login";
     }
-
+    
     // Proses login
     @PostMapping("/login")
     public String login(@RequestParam("email") String email,
@@ -228,58 +228,59 @@ public class HomeController {
     
     
     @GetMapping("/pesan")
-    public String pesan(@RequestParam("idKamar") Long idKamar, Model model, HttpSession session) {
-        // Memeriksa apakah user sudah login
-        CalonPenyewa user = (CalonPenyewa) session.getAttribute("user");
-        if (user == null) {
-            return "redirect:/login";
-        }
-
-        Kamar kamar = kamarService.getKamarById(idKamar);
-        if (kamar == null) {
-            return "redirect:/";
-        }
-
-        model.addAttribute("kamar", kamar);
-        model.addAttribute("user", user);  // Menambahkan user ke model
-
-        return "pesan";
+public String pesan(@RequestParam("idKamar") Long idKamar, Model model, HttpSession session) {
+    // Memeriksa apakah user sudah login
+    CalonPenyewa user = (CalonPenyewa) session.getAttribute("user");
+    if (user == null) {
+        return "redirect:/login";
     }
 
-    // Menyimpan pemesanan
-    @PostMapping("/pesan")
-    public String simpanPemesanan(@RequestParam("idKamar") Long idKamar,
-                                  @RequestParam("durasi") int durasi,
-                                  HttpSession session,
-                                  RedirectAttributes redirectAttributes,Model model) {
-        CalonPenyewa user = (CalonPenyewa) session.getAttribute("user");
-        if (user == null) {
-            return "redirect:/login";
-        }
+    Kamar kamar = kamarService.getKamarById(idKamar);
+    if (kamar == null) {
+        return "redirect:/";
+    }
 
-        Kamar kamar = kamarService.getKamarById(idKamar);
-        if (kamar == null) {
-            return "redirect:/";
-        }
-
-        // Menghitung total biaya
-        float totalBiaya = kamar.getHarga() * durasi;
-
-        // Membuat objek pemesanan dan menyimpannya
-        Pemesanan pemesanan = new Pemesanan();
-        pemesanan.setKamar(kamar);
-        pemesanan.setCalonPenyewa(user);
-        pemesanan.setDurasi(durasi);
-        pemesanan.setTotalBiaya(totalBiaya);
-
-        pemesananService.savePemesanan(pemesanan);
-
-        model.addAttribute("successMessage", "Pemesanan berhasil disimpan!");
-        model.addAttribute("kamar", kamar);
+    System.out.println("ID Kamar: " + kamar.getId()); // Tambahkan log ini
+    model.addAttribute("kamar", kamar);
+    model.addAttribute("user", user);  // Menambahkan user ke model
 
     return "pesan";
+}
+
+@PostMapping("/pesan")
+public String simpanPemesanan(
+    @RequestParam("idCalonPenyewa") Long idCalonPenyewa,
+    @RequestParam("idKamar") Long idKamar,
+    @RequestParam("durasi") int durasi,
+    @RequestParam("totalBiaya") float totalBiaya,
+    RedirectAttributes redirectAttributes
+) {
+    // Validasi input
+    if (idCalonPenyewa == null || idKamar == null) {
+        redirectAttributes.addFlashAttribute("errorMessage", "Data tidak lengkap. Silakan coba lagi.");
+        return "redirect:/pesan";
     }
 
+    // Buat objek Pemesanan
+    Pemesanan pemesanan = new Pemesanan();
+    pemesanan.setDurasi(durasi);
+    pemesanan.setTotalBiaya(totalBiaya);
+
+    // Simpan Pemesanan melalui service
+    pemesananService.savePemesanan(pemesanan, idCalonPenyewa, idKamar);
+
+    // Berikan flash message dan redirect
+    redirectAttributes.addFlashAttribute("successMessage", "Pemesanan berhasil disimpan!");
+    return "redirect:/";
+}
+
+    
+    
+    
+    
+    
+
+    
   
     
     @GetMapping("/showKamar")
@@ -327,7 +328,7 @@ public class HomeController {
         return "penghuni"; // Tampilkan halaman penghuni
     }
     
-
+    
     @GetMapping("/complain")
     public String showComplain(HttpSession session, Model model) {
         // Periksa apakah penjaga sudah login
@@ -439,6 +440,17 @@ public class HomeController {
             return "redirect:/edit/" + id;
         }
     }
+    @GetMapping("/delete-penghuni/{id}")
+    public String deletePenghuni(@PathVariable("id") Long id, RedirectAttributes redirectAttributes) {
+        try {
+            // Panggil service untuk menghapus CalonPenyewa
+            calonPenyewaService.deleteCalonPenyewaById(id);
+            redirectAttributes.addFlashAttribute("successMessage", "Penghuni berhasil dihapus!");
+        } catch (RuntimeException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Gagal menghapus penghuni: " + e.getMessage());
+        }
+        return "redirect:/penghuni"; // Redirect ke halaman daftar penghuni
+    }
     
     
 
@@ -491,12 +503,27 @@ public class HomeController {
 }
 @PostMapping("/update-profile")
 public String updateProfile(@ModelAttribute CalonPenyewa calonPenyewa, HttpSession session) {
-   
-    calonPenyewaService.updateCalonPenyewa(calonPenyewa);
-    session.setAttribute("user", calonPenyewa);
+    // Ambil entitas yang ada dari database
+    CalonPenyewa existingCalonPenyewa = calonPenyewaService.getCalonPenyewaById(calonPenyewa.getIdCalonPenyewa());
 
-    return "redirect:/index"; // Redirect to the profile page after updating
-    }
+    // Update properti yang diperlukan
+    existingCalonPenyewa.setUsername(calonPenyewa.getUsername());
+    existingCalonPenyewa.setPassword(calonPenyewa.getPassword());
+    existingCalonPenyewa.setEmail(calonPenyewa.getEmail());
+    existingCalonPenyewa.setJenisKelamin(calonPenyewa.getJenisKelamin());
+    existingCalonPenyewa.setAlamat(calonPenyewa.getAlamat());
+    existingCalonPenyewa.setPhoneNumber(calonPenyewa.getPhoneNumber());
+    // Jangan ubah koleksi complaints
+
+    // Simpan entitas yang telah diperbarui
+    calonPenyewaService.updateCalonPenyewa(existingCalonPenyewa);
+
+    // Perbarui sesi
+    session.setAttribute("user", existingCalonPenyewa);
+
+    return "redirect:/index"; // Redirect ke halaman utama
+}
+
 }
     
     

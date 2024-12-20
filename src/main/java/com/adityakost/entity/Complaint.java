@@ -1,7 +1,6 @@
 package com.adityakost.entity;
 
 import java.time.LocalDateTime;
-
 import jakarta.persistence.*;
 
 @Entity
@@ -20,8 +19,7 @@ public class Complaint {
     private String complain;
 
     @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
-
+    private LocalDateTime createdAt;
 
     // Constructor
     public Complaint() {

@@ -16,6 +16,9 @@ public interface CalonPenyewaRepo extends JpaRepository<CalonPenyewa, Long> {
     CalonPenyewa findByEmailAndPassword(String email, String password);
     @Query("SELECT p.calonPenyewa FROM Pemesanan p WHERE p.calonPenyewa IS NOT NULL")
     List<CalonPenyewa> findCalonPenyewaWithPemesanan();
+    @Query("DELETE FROM Pemesanan p WHERE p.calonPenyewa.idCalonPenyewa = :calonPenyewaId")
+    void deleteByCalonPenyewaId(Long calonPenyewaId);
+
 
     
 }
